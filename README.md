@@ -3,8 +3,19 @@
 This repository contains the reference implementation of the network controller of the **Chameleon** networking system for predictable latency in programmable networks published in:
 - [Amaury Van Bemten, Nemanja Ðerić, Amir Varasteh, Stefan Schmid, Carmen Mas-Machuca, Andreas Blenk, and Wolfgang Kellerer. "Chameleon: Predictable Latency and High Utilization with Queue-Aware and Adaptive Source Routing." ACM CoNEXT, 2020](https://mediatum.ub.tum.de/doc/1577772/file.pdf).
 
-This project does not contain the main logic of the controller, but rather aggregates all the logic of its constituting components.
-This is described in the [implementation architecture section](#implementation) below.
+This controller works in conjunction with the [Chameleon end host implementation](https://github.com/AmoVanB/chameleon-end-host).
+
+The [Physical.java](./src/main/java/Physical.java) program starts the controller.
+You will need an appropriately configured network infrastructure (see the [Chameleon end host implementation](https://github.com/AmoVanB/chameleon-end-host) and [SBI](https://github.com/AmoVanB/eces-sbi) projects).
+
+The [Simulation.java](./src/main/java/Simulation.java) program starts the controller in "simulation mode" and can be run as is on any PC equipped with Maven and Java 8.
+The NBI and SBI (see [below](#implementation)) are deactivated and a fat tree topology is programmatically created and a flow embedding request is programmatically sent to the controller.
+The figure below depicts the GUI of the controller showing the embedded flow along with the resources it consumes (in the right pane) at a specific queue.
+The log of that simulation run is available [here](./example/output.log).
+
+<p align="center">
+<img src="./example/gui.png" width="700">
+</p>
 
 ## Chameleon
 
@@ -28,7 +39,6 @@ The controller must also ensure that this new flow will not lead to previous flo
 More details about the architecture, the implementation, the goal, and the performance of Chameleon can be found in the [2020 CoNEXT article](https://mediatum.ub.tum.de/doc/1577772/file.pdf) where the system was originally published.
 Section 3 focuses on the design of the system, with Section 3.5 focusing on the architecture of the controller.
 Section 4.1 details the implementation of the control part.
-
 
 ## Controller Architecture
 

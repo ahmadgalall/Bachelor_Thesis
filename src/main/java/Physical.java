@@ -27,6 +27,12 @@ import de.tum.ei.lkn.eces.routing.pathlist.PathListSystem;
 import de.tum.ei.lkn.eces.sbi.ExpectedHost;
 import de.tum.ei.lkn.eces.sbi.SBISystem;
 import de.tum.ei.lkn.eces.tenantmanager.TenantManagerSystem;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.CostIncreaseTypes;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.FlowSelectionTypes;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.LimitReroutingTypes;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.SortFlowTypes;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.components.ReroutingConfiguration;
+import de.tum.ei.lkn.eces.tenantmanager.rerouting.mappers.ReroutingConfigurationMapper;
 import de.tum.ei.lkn.eces.webgraphgui.WebGraphGuiSystem;
 import de.tum.ei.lkn.eces.webgraphgui.color.ColoringSystem;
 import org.apache.log4j.FileAppender;
@@ -40,7 +46,7 @@ import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Main {
+public class Physical {
     private static Logger LOG;
 
     private static final int GUI_PORT = 18888;
@@ -51,7 +57,7 @@ public class Main {
     }
 
     private static void configureLogger(String outputFile) {
-        LOG = Logger.getLogger(Main.class);
+        LOG = Logger.getLogger(Physical.class);
         LOG.removeAllAppenders();
         Logger.getRootLogger().removeAllAppenders();
         if(outputFile == null)
@@ -70,6 +76,7 @@ public class Main {
 
         Logger.getRootLogger().setLevel(Level.INFO);
         Logger.getLogger("de.tum.ei.lkn.eces.webgraphgui").setLevel(Level.OFF);
+        Logger.getLogger("de.tum.ei.lkn.eces.tenantmanager.kspsystem").setLevel(Level.WARN);
         Logger.getLogger("de.tum.ei.lkn.eces.core").setLevel(Level.WARN);
         Logger.getLogger("de.tum.ei.lkn.eces.graph").setLevel(Level.WARN);
         Logger.getLogger("de.tum.ei.lkn.eces.dnm").setLevel(Level.WARN);
@@ -111,10 +118,6 @@ public class Main {
         routingAlgorithm.setProxy(proxy);
         modelConfig.initCostModel(controller);
 
-        // Create network
-        Network network = networkingSystem.createNetwork();
-        modelingConfigMapper.attachComponent(network.getQueueGraph(), modelConfig);
-
         // GUI
         if(withGui) {
             ColoringSystem coloringSystem = new ColoringSystem(controller);
@@ -131,6 +134,10 @@ public class Main {
             coloringSystem.addColoringScheme(new PathListColoring(controller), "Amount of paths");
             new WebGraphGuiSystem(controller, coloringSystem, GUI_PORT);
         }
+
+        // Create network
+        Network network = networkingSystem.createNetwork();
+        modelingConfigMapper.attachComponent(network.getQueueGraph(), modelConfig);
 
         // SBI
         Set<ExpectedHost> hosts = new HashSet<>();
@@ -152,6 +159,8 @@ public class Main {
         new SBISystem(controller, networkingSystem, network, hosts, switches, 19, 3, true);
 
         // Tenant Manager
+        ReroutingConfigurationMapper reroutingConfigurationMapper = new ReroutingConfigurationMapper(controller);
+        reroutingConfigurationMapper.attachComponent(network.getEntity(), new ReroutingConfiguration(FlowSelectionTypes.ALL_SHORTEST_PATHS, SortFlowTypes.COMMON_EDGES_SORT, CostIncreaseTypes.PHYSICAL_LINK_INCREASE, LimitReroutingTypes.ABSOLUTE, 10));
         TenantManagerSystem tenantManagerSystem = new TenantManagerSystem(network, routingAlgorithm, controller);
 
         // NBI

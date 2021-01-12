@@ -28,7 +28,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>Main</mainClass>
+                                    <mainClass>Physical</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
