@@ -10,6 +10,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -92,6 +93,7 @@
             <version>1.0.2</version>
         </dependency>
         <dependency>
+
             <groupId>de.tum.ei.lkn.eces</groupId>
             <artifactId>tenant-manager</artifactId>
             <version>1.0.18</version>
